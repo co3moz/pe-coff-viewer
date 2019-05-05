@@ -522,15 +522,16 @@ const dllCharacteristics = {
   0x0002: ['Reserved.', 'Reserved'],
   0x0004: ['Reserved.', 'Reserved'],
   0x0008: ['Reserved.', 'Reserved'],
+  0x0020: ['HIGH_ENTROPY_VA', 'Image can handle a high entropy 64-bit virtual address space.'],
   0x0040: ['DYNAMIC_BASE', 'The DLL can be relocated at load time.'],
   0x0080: ['FORCE_INTEGRITY', 'Code integrity checks are forced. If you set this flag and a section contains only uninitialized data, set the PointerToRawData member of IMAGE_SECTION_HEADER for that section to zero; otherwise, the image will fail to load because the digital signature cannot be verified.'],
   0x0100: ['NX_COMPAT', 'The image is compatible with data execution prevention (DEP).'],
   0x0200: ['NO_ISOLATION', 'The image is isolation aware, but should not be isolated.'],
   0x0400: ['NO_SEH', 'The image does not use structured exception handling (SEH). No handlers can be called in this image.'],
   0x0800: ['NO_BIND', 'Do not bind the image.'],
-  0x1000: ['Reserved.', 'Reserved'],
+  0x1000: ['APPCONTAINER', 'Image must execute in an AppContainer'],
   0x2000: ['WDM_DRIVER', 'A WDM driver.'],
-  0x4000: ['Reserved.', 'Reserved'],
+  0x4000: ['GUARD_CF', 'Image supports Control Flow Guard'],
   0x8000: ['TERMINAL_SERVER_AWARE', 'The image is terminal server aware.'],
 };
 
