@@ -43,11 +43,15 @@ function readAsByte(file, callback) {
 
 const sub16 = '<sub>16</sub>';
 const sub2 = '<sub>2</sub>';
-const content = document.querySelector('.content');
+const contentDOM = document.querySelector('.content');
+const fileNameDOM = document.querySelector('.file-name');
+
+const offset_string_fn = (v) => 'offset: 0x' + (v | 0).toString(16).toUpperCase();
 
 function loadExe(fileName, data) {
   try {
-    document.querySelector('.blockquote-footer').innerHTML = fileName;
+    fileNameDOM.innerHTML = fileName;
+    document.querySelectorAll('.tip').forEach(x => x.style.display = 'block');
 
     let offset = 0;
     let byte = () => data.getInt8((offset += 1) - 1);
@@ -83,7 +87,7 @@ function loadExe(fileName, data) {
             txt = x.substring(1);
           }
         }
-        return `<div class="col p-2 list-col ${s ? 'list-header' + (className ? ' ' + className + '-header' : '') : ''} ${className || ''}" title="${alt}">${txt}</div>`
+        return `<div class="col p-2 list-col ${s ? 'list-header' + (className ? ' ' + className + '-header' : '') : ''} ${className || ''}" ${alt ? ' title="' + alt + '"' : ''}>${txt}</div>`
       }).join('\n')}
       </div>`;
     }
@@ -119,7 +123,7 @@ function loadExe(fileName, data) {
         }
         let out = (i + rs) < s || (i + rs) >= e;
 
-        let title = "{offset: 0x" + (i + rs).toString(16).toUpperCase() + "}";
+        let title = offset_string_fn(i + rs);
         hexMap += '<td i="' + i + '" h="1" class="out-' + out + '" title="' + title + '">' + d[i].toString(16).toUpperCase().padStart(2, '0') + '</td>';
         contentMap += '<td i="' + i + '" h="2" class="out-' + out + '" title="' + title + '">' + fromCode(d[i]) + '</td>';
         if (mod == 15) {
@@ -142,8 +146,7 @@ function loadExe(fileName, data) {
       throw new Error('MZ Signature missing.');
     }
 
-    let po = () => '{offset: 0x' + offset.toString(16) + '}';
-
+    let po = (v) => offset_string_fn(offset + (v | 0));
 
     let html = '';
     let e_lfanew = 0;
@@ -159,11 +162,11 @@ function loadExe(fileName, data) {
       '@maxalloc/' + po(), short(),
     ]);
     html += list([
-      '@ss/Stack Segment Register ' + po(), short(),
-      '@sp/Stack Pointer Register ' + po(), short(),
+      '@ss/Stack Segment Register | ' + po(), short(),
+      '@sp/Stack Pointer Register | ' + po(), short(),
       '@checksum/' + po(), short(),
-      '@ip/Instruction Pointer ' + po(), short(),
-      '@cs/Extend of Instruction Pointer ' + po(), short(),
+      '@ip/Instruction Pointer | ' + po(), short(),
+      '@cs/Extend of Instruction Pointer | ' + po(), short(),
       '@relocpos/' + po(), short(),
       '@noverlay/' + po(), short(),
     ]);
@@ -180,7 +183,7 @@ function loadExe(fileName, data) {
       ...repeat(10, x => short())
     ]);
     html += list([
-      '@e_lfanew/New exe header location ' + po(),
+      '@e_lfanew/New exe header location | ' + po(),
       e_lfanew = int()
     ]);
 
@@ -197,16 +200,16 @@ function loadExe(fileName, data) {
       let nsections;
       html += list([
         '@nsections/' + po(), nsections = short(),
-        '@timestamp/Build date ' + po(), basicDate(int()),
+        '@timestamp/Build date | ' + po(), basicDate(int()),
         '@ptrsymbol/' + po(), int(),
       ]);
 
       let chr;
       let szoptheader;
       html += list([
-        '@nsymbols', int(),
-        '@szoptheader/Size of optional header', szoptheader = ushort(),
-        '@chr/Characteristics', (chr = ushort()).toString(2) + sub2,
+        '@nsymbols/' + po(), int(),
+        '@szoptheader/Size of optional header | ' + po(), szoptheader = ushort(),
+        '@chr/Characteristics | ' + po(), (chr = ushort()).toString(2) + sub2,
       ]);
 
       Object.keys(characteristics).forEach(n => {
@@ -222,43 +225,43 @@ function loadExe(fileName, data) {
         let sigText = signature == 523 ? 'HDR64_MAGIC' : signature == 267 ? 'HDR32_MAGIC' : signature == 263 ? 'HDR_MAGIC' : ('Unknown (' + signature + ')');
 
         html += list([
-          '@signature', sigText,
-          '@verlinker/Linker version', ubyte() + '.' + ubyte(),
-          '@szcode/Size Of Code', int(),
+          '@signature/' + po(-2), sigText,
+          '@verlinker/Linker version | ' + po(), ubyte() + '.' + ubyte(),
+          '@szcode/Size Of Code | ' + po(), int(),
         ]);
 
         html += list([
-          '@szinitdata/Size Of Initialized Data', int(),
-          '@szuinitdata/Size Of Uninitialized Data', int(),
-          '@adrentry/Address of Entry Point', int_hex(),
+          '@szinitdata/Size Of Initialized Data | ' + po(), int(),
+          '@szuinitdata/Size Of Uninitialized Data | ' + po(), int(),
+          '@adrentry/Address of Entry Point | ' + po(), int_hex(),
         ]);
         html += list([
-          '@basecode/Base of Code', int_hex(),
-          '@basedata/Base of Data', signature == 523 ? 'N/A' : int_hex(),
-          '@imgbase', signature == 523 ? long_hex() : int_hex(),
+          '@basecode/Base of Code | ' + po(), int_hex(),
+          '@basedata/Base of Data | ' + po(), signature == 523 ? 'N/A' : int_hex(),
+          '@imgbase/Image Base | ' + po(), signature == 523 ? long_hex() : int_hex(),
         ]);
         html += list([
-          '@secalign/Section alignment', int(),
-          '@filealign/File alignment', int(),
-          '@osver/OS Version', short() + '.' + short(),
+          '@secalign/Section alignment | ' + po(), int(),
+          '@filealign/File alignment | ' + po(), int(),
+          '@osver/OS Version | ' + po(), short() + '.' + short(),
         ]);
         html += list([
-          '@imgver/Image Version', short() + '.' + short(),
-          '@subsysver/Subsystem Version', short() + '.' + short(),
-          '@reserved/Reserved. (its 0 all the time)', int(),
+          '@imgver/Image Version | ' + po(), short() + '.' + short(),
+          '@subsysver/Subsystem Version | ' + po(), short() + '.' + short(),
+          '@reserved/Reserved. (its 0 all the time) | ' + po(), int(),
         ]);
         html += list([
-          '@szimage/Image Size', int(),
-          '@szhdr/Header Size', int(),
-          '@checksum', int(),
+          '@szimage/Image Size | ' + po(), int(),
+          '@szhdr/Header Size | ' + po(), int(),
+          '@checksum/' + po(), int(),
         ]);
         let subsystem;
         let dllCharacteristic;
 
         html += list([
-          '@subsystem', subsystem = ushort(),
-          '@dllchr/DLL Characteristics', (dllCharacteristic = ushort(), dllCharacteristic.toString(2)) + sub2,
-          '@szstkrsv/Size of Stack Reserve', varying(),
+          '@subsystem/Subsystem value | ' + po(), subsystem = ushort(),
+          '@dllchr/DLL Characteristics | ' + po(), (dllCharacteristic = ushort(), dllCharacteristic.toString(2)) + sub2,
+          '@szstkrsv/Size of Stack Reserve | ' + po(), varying(),
         ]);
 
         if (subsystems[subsystem]) {
@@ -279,15 +282,15 @@ function loadExe(fileName, data) {
         });
 
         html += list([
-          '@szstkcmt/Size of Stack Commit', varying(),
-          '@szhprsv/Size of Heap Reserve', varying(),
-          '@szhpcmt/Size of Heap Commit', varying(),
+          '@szstkcmt/Size of Stack Commit | ' + po(), varying(),
+          '@szhprsv/Size of Heap Reserve | ' + po(), varying(),
+          '@szhpcmt/Size of Heap Commit | ' + po(), varying(),
         ]);
 
         int(); // loader flags..
 
         html += list([
-          '@ddi/Data Directory Index', '@addr/Address', '@size/Size'
+          '@ddi/Data Directory Index | ' + po(), '@addr/Address', '@size/Size'
         ]);
 
         let dd = int();
@@ -300,7 +303,7 @@ function loadExe(fileName, data) {
 
           let id = imageDirectory[i];
           html += list([
-            '@' + (id ? (id[0] + ' (' + i + ')' + '/' + id[1]) : i),
+            '@' + (id ? (id[0] + ' (' + i + ')' + '/' + id[1]) : i) + ' ' + po(-8),
             (addr ? (addr.toString(16).toUpperCase() + sub16) : 0),
             (size ? (size.toString(16).toUpperCase() + sub16) : 0),
           ], 'nas');
@@ -311,6 +314,7 @@ function loadExe(fileName, data) {
         let utfDecoder = new TextDecoder('utf-8');
 
         for (let n = 0; n < nsections; n++) {
+
           let name = Array(8).fill(0).map(x => ubyte());
           let vsize = int();
           let vaddr = int();
@@ -323,27 +327,26 @@ function loadExe(fileName, data) {
           let chr = uint();
 
           let name_utf = utfDecoder.decode(new Uint8Array(name)).trim();
-
           html += list([
-            '@section/Section name', name_utf, name.map(x => x.toString(16).toUpperCase().padStart(2, '0')).join(' '),
+            '@section/Section name ' + po(-40), name_utf, name.map(x => x.toString(16).toUpperCase().padStart(2, '0')).join(' '),
           ], 'hsection');
 
           html += list([
-            '@vsize/Virtual size', vsize,
-            '@vaddr/Virtual address', vaddr.toString(16) + sub16,
-            '@szrawdata/Size of Raw Data', szrawdata,
+            '@vsize/Virtual size ' + po(-32), vsize,
+            '@vaddr/Virtual address ' + po(-28), vaddr.toString(16) + sub16,
+            '@szrawdata/Size of Raw Data ' + po(-24), szrawdata,
           ]);
 
           html += list([
-            '@ptrrawdata/Pointer of Raw Data', ptrrawdata,
-            '@ptrreloc/Pointer of Relocations', ptrreloc,
-            '@ptrline/Pointer of Line numbers', ptrln
+            '@ptrrawdata/Pointer of Raw Data ' + po(-20), ptrrawdata,
+            '@ptrreloc/Pointer of Relocations ' + po(-16), ptrreloc,
+            '@ptrline/Pointer of Line numbers ' + po(-12), ptrln
           ]);
 
           html += list([
-            '@nreloc/Number of Relocations', nreloc,
-            '@nline/Number of Line numbers', nln,
-            '@chr/Section Characteristic value', chr.toString(16).toUpperCase() + sub16
+            '@nreloc/Number of Relocations ' + po(-8), nreloc,
+            '@nline/Number of Line numbers ' + po(-6), nln,
+            '@chr/Section Characteristic value ' + po(-4), chr.toString(16).toUpperCase() + sub16
           ]);
 
           Object.keys(sectionCharacteristics).forEach(n => {
@@ -367,14 +370,14 @@ function loadExe(fileName, data) {
 
     html += '<br>'.repeat(10);
 
-    content.innerHTML = html;
+    contentDOM.innerHTML = html;
 
     updateError();
   } catch (e) {
     updateError(e);
 
     html = '';
-    content.innerHTML = html;
+    contentDOM.innerHTML = html;
   }
 }
 
@@ -403,7 +406,8 @@ document.body.onmousemove = function (e) {
   }
 }
 
-content.onclick = function (e) {
+contentDOM.onclick = function (e) {
+  if (!e.ctrlKey) return;
   let target = e.target;
 
   if (target) {
