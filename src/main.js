@@ -233,7 +233,7 @@ function loadExe(fileName, data) {
         html += list([
           '@szinitdata/Size Of Initialized Data | ' + po(), int(),
           '@szuinitdata/Size Of Uninitialized Data | ' + po(), int(),
-          '@adrentry/Address of Entry Point | ' + po(), int_hex(),
+          '@entrypoint/Address of Entry Point | ' + po(), int_hex(),
         ]);
         html += list([
           '@basecode/Base of Code | ' + po(), int_hex(),
