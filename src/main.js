@@ -289,6 +289,8 @@ function loadExe(fileName, data) {
     }
 
 
+    html += f.dyn_bin_walk(f.offset, f.offset + 128);
+
     console.log('generated html size: ' + html.length);
     console.log('stop offset: ' + f.offset);
 
@@ -450,8 +452,55 @@ function DataFloater(data) {
       '</div>';
   }
 
+  let dyn_bin_walk = (s, e) => {
+    let rs = Math.floor(s / 16) * 16;
+    let re = Math.ceil(e / 16) * 16;
+
+    let hexMap = '<tr><td></td>';
+    let contentMap = '<tr>';
+
+    for (let i = 0; i < 16; i++) {
+      hexMap += '<td>' + i.toString(16).toUpperCase() + '</td>';
+      contentMap += '<td>' + i.toString(16).toUpperCase() + '</td>';
+    }
+
+    hexMap += '</tr>';
+    contentMap += '</tr>';
+
+    for (let i = rs; i < re; i++) {
+      let mod = i % 16;
+      if (mod == 0) {
+        hexMap += '<tr><td>' + (i).toString(16).toUpperCase() + '</td>';
+        contentMap += '<tr>';
+      }
+
+      let out = i < s || i >= e ? ' class="out"' : '';
+      let alt = i.toString(16).toUpperCase() + 'h';
+      let v = data.getUint8(i);
+
+      hexMap += '<td i="' + (i - rs) + '"' + out + ' alt="' + alt + '">' + v.toString(16).toUpperCase().padStart(2, '0') + '</td>';
+      contentMap += '<td i="' + (i - rs) + '"' + out + ' alt="' + alt + '">' + fromCode(v) + '</td>';
+      if (mod == 15) {
+        hexMap += '</tr>';
+        contentMap += '</tr>';
+      }
+    }
+
+    return '<div class="row bin-walk-dyn">' +
+      '<div class="col-md-11">' +
+      '<div class="row bin-walk">' +
+      '<div class="col-md-8 bin-walk-left"><table h="1">' + hexMap + '</table></div>' +
+      '<div class="col-md-4 bin-walk-right"><table h="2">' + contentMap + '</table></div>' +
+      '</div>' +
+      '</div>' +
+      '<div class="col-md-1">' +
+
+      '</div>' +
+      '</div>';
+  }
+
   return {
-    byte, ubyte, short, ushort, int, uint, long_hex, int_hex, list, repeat, bin_walk, repeat,
+    byte, ubyte, short, ushort, int, uint, long_hex, int_hex, list, repeat, bin_walk, repeat, dyn_bin_walk,
 
     get offset() {
       return offset
