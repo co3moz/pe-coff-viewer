@@ -101,6 +101,8 @@ h3 {
   font-size: 40px;
 }
 
+/* BIN_WALK */
+
 .bin-walk {
   margin-top: 5px;
   font-family: monospace;
@@ -155,6 +157,61 @@ h3 {
   background-color: rgb(211, 211, 211);
   color: rgb(116, 116, 116);
 }
+
+
+/* BIN_DYN */
+
+.bin-dyn {
+  margin-top: 5px;
+  font-family: monospace;
+  font-size: 15px;
+  line-height: 20px;
+}
+
+.bin-dyn-left, .bin-dyn-right {
+  padding: 0 !important;
+  text-align: center;
+}
+
+.bin-dyn-left {
+  padding-right: 5px !important;
+}
+
+.bin-dyn-right {
+  padding-left: 5px !important;
+}
+
+.bin-dyn-left table, .bin-dyn-right table {
+  width: 100%;
+}
+
+.bin-dyn-left td, .bin-dyn-right td {
+  border: 1px solid #ebebeb;
+}
+
+.bin-dyn-left tr:first-child td, .bin-dyn-left tr td:first-child, .bin-dyn-right tr:first-child td {
+  background-color: #5a5a5a;
+  border: 1px solid #7a7a7a;
+  color: white;
+  font-weight: bold;
+}
+
+.bin-dyn td:hover {
+  background-color: #7a7a7a;
+  color: white;
+}
+
+.bin-dyn td.hover {
+  background-color: #7a7a7a;
+  color: white;
+}
+
+.bin-dyn .out {
+  background-color: rgb(211, 211, 211);
+  color: rgb(116, 116, 116);
+}
+
+/* HOVER STUFF */
 
 .content [alt]:hover::after {
   display: block;
