@@ -401,10 +401,10 @@ function list(array, opt) {
 
     let obj = regex.exec(x + '');
 
-    let isHeader = !!obj[1];
-    let txt = (obj[2] || '').trim();
-    let alt = (obj[3] || '').trim();
-    let offset = (obj[4] || '').trim();
+    let isHeader = obj && !!obj[1];
+    let txt = ((obj && obj[2]) || '').trim();
+    let alt = ((obj && obj[3]) || '').trim();
+    let offset = ((obj && obj[4]) || '').trim();
 
     txt = txt.replace(':sub16', '<sub>16</sub>')
 
